@@ -519,13 +519,13 @@ const memoize = (cache, func, keyFunc, ttl) => {
     if (existing !== void 0) {
       if (!existing.exp)
         return existing.value;
-      if (existing.exp > new Date().getTime()) {
+      if (existing.exp > (/* @__PURE__ */ new Date()).getTime()) {
         return existing.value;
       }
     }
     const result = func(...args);
     cache[key] = {
-      exp: ttl ? new Date().getTime() + ttl : null,
+      exp: ttl ? (/* @__PURE__ */ new Date()).getTime() + ttl : null,
       value: result
     };
     return result;

@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
     "outDir": "dist",
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "target": "es2020",
     "lib": ["es2020"],
     "esModuleInterop": true,
-    "strict": true
+    "strict": true,
+    "noImplicitAny": true,
   },
   "include": [
     "src/**/*.ts"
