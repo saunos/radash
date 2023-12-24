@@ -43,13 +43,9 @@ export {
 } from './async'
 export type { AggregateError } from './async'
 export {
-  callable,
-  chain,
-  compose,
+  pipe,
   debounce,
   memo,
-  partial,
-  partob,
   proxied,
   throttle
 } from './curry'

@@ -2,100 +2,59 @@ import * as _ from '..'
 import type { DebounceFunction } from '../curry'
 
 describe('curry module', () => {
-  describe('compose function', () => {
-    test('composes functions', () => {
-      const useZero = (fn: any) => () => fn(0)
-      const objectize = (fn: any) => (num: any) => fn({ num })
-      const increment =
-        (fn: any) =>
-        ({ num }: any) =>
-          fn({ num: num + 1 })
-      const returnArg = (arg: any) => (args: any) => args[arg]
-
-      const composed = _.compose(
-        useZero,
-        objectize,
-        increment,
-        increment,
-        returnArg('num')
-      )
-
-      const decomposed = useZero(
-        objectize(increment(increment(returnArg('num'))))
-      )
-
-      const expected = decomposed()
-      const result = composed()
-
-      expect(result).toBe(expected)
-    })
-    test('composes async function', async () => {
-      const useZero = (fn: any) => async () => await fn(0)
-      const objectize = (fn: any) => async (num: any) => await fn({ num })
-      const increment =
-        (fn: any) =>
-        async ({ num }: any) =>
-          await fn({ num: num + 1 })
-      const returnArg = (arg: any) => async (args: any) => await args[arg]
-
-      const composed = _.compose(
-        useZero,
-        objectize,
-        increment,
-        increment,
-        returnArg('num')
-      )
-
-      const decomposed = useZero(
-        objectize(increment(increment(returnArg('num'))))
-      )
-
-      const expected = await decomposed()
-      const result = await composed()
-
-      expect(result).toBe(expected)
-    })
-  })
-
-  describe('partial function', () => {
-    test('passes single args', () => {
-      const add = (a: number, b: number) => a + b
-      const expected = 20
-      const result = _.partial(add, 10)(10)
-      expect(result).toBe(expected)
-    })
-    test('passes many args', () => {
-      const add = (...nums: number[]) => nums.reduce((a, b) => a + b, 0)
-      const expected = 10
-      const result = _.partial(add, 2, 2, 2)(2, 2)
-      expect(result).toBe(expected)
-    })
-  })
-
-  describe('partob function', () => {
-    test('partob passes single args', () => {
-      const add = ({ a, b }: { a: number; b: number }) => a + b
-      const expected = 20
-      const result = _.partob(add, { a: 10 })({ b: 10 })
-      expect(result).toBe(expected)
-    })
-    test('partob overrides inital with later', () => {
-      const add = ({ a, b }: { a: number; b: number }) => a + b
-      const expected = 15
-      const result = _.partob(add, { a: 10 })({ a: 5, b: 10 } as any)
-      expect(result).toBe(expected)
-    })
-  })
-
-  describe('chain function', () => {
+  describe('pipe function', () => {
     test('calls all given functions', () => {
-      const genesis = () => 0
       const addFive = (num: number) => num + 5
       const twoX = (num: number) => num * 2
-      const func = _.chain(genesis, addFive, twoX)
-      const result = func()
+      const func = _.pipe(addFive, twoX)
+      const result = func(0)
       expect(result).toBe(10)
     })
+  })
+
+  test('calls add(1), then addFive, then twoX functions by 1', () => {
+    const add = (y: number) => (x: number) => x + y
+    const addFive = add(5)
+    const twoX = (num: number) => num * 2
+    const func = _.pipe(add(1), addFive, twoX)
+    const result = func(1)
+    expect(result).toBe(14)
+  })
+
+  test('calls add(2), then addFive, then twoX, then repeatX functions by 1', () => {
+    const add = (y: number) => (x: number) => x + y
+    const addFive = add(5)
+    const twoX = (num: number) => num * 2
+    const repeatX = (num: number) => 'X'.repeat(num)
+    const func = _.pipe(add(2), addFive, twoX, repeatX)
+    const result = func(1)
+    expect(result).toBe('XXXXXXXXXXXXXXXX')
+  })
+
+  test('calls addFive, then add(2), then twoX, then repeatX functions by 1', () => {
+    const add = (y: number) => (x: number) => x + y
+    const addFive = add(5)
+    const twoX = (num: number) => num * 2
+    const repeatX = (num: number) => 'X'.repeat(num)
+    const func = _.pipe(addFive, add(2), twoX, repeatX)
+    const result = func(1)
+    expect(result).toBe('XXXXXXXXXXXXXXXX')
+  })
+
+  test('calls getName, then upperCase functions as a mapper for User[]', () => {
+    type User = { id: number; name: string }
+    const users: User[] = [
+      { id: 1, name: 'John Doe' },
+      { id: 2, name: 'John Smith' },
+      { id: 3, name: 'John Wick' }
+    ]
+    const getName = <T extends { name: string }>(item: T) => item.name
+    const upperCase: (x: string) => Uppercase<string> = (text: string) =>
+      text.toUpperCase() as Uppercase<string>
+
+    const getUpperName = _.pipe<User, Uppercase<string>>(getName, upperCase)
+    const result = users.map(getUpperName)
+    expect(result).toEqual(['JOHN DOE', 'JOHN SMITH', 'JOHN WICK'])
   })
 
   describe('proxied function', () => {
@@ -258,33 +217,5 @@ describe('curry module', () => {
       results.push(func.isThrottled())
       expect(results).toEqual([false, true, true, true, false])
     })
-  })
-})
-
-describe('callable function', () => {
-  test('makes object callable', async () => {
-    const request = {
-      source: 'client',
-      body: 'ford',
-      doors: 2
-    }
-
-    const call = _.callable(request, self => (id: string) => ({
-      ...self,
-      id
-    }))
-
-    expect(call.source).toBe('client')
-    expect(call.body).toBe('ford')
-    expect(call.doors).toBe(2)
-    const s = call('23')
-    expect(s.doors).toBe(2)
-    expect(s.id).toBe('23')
-
-    call.doors = 4
-    expect(call.doors).toBe(4)
-    const x = call('9')
-    expect(x.doors).toBe(4)
-    expect(x.id).toBe('9')
   })
 })
