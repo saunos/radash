@@ -1,6 +1,4 @@
-export type Func<TArgs = any, KReturn = any | void> = (
-  ...args: TArgs[]
-) => KReturn
+export type Func<TArgs = any, KReturn = any> = (...args: TArgs[]) => KReturn
 
 export const chain =
   (...funcs: Func[]) =>

@@ -24,8 +24,9 @@ export const isPrimitive = (value: any): boolean => {
   )
 }
 
+// biome-ignore lint/complexity/noBannedTypes: <explanation>
 export const isFunction = (value: any): value is Function => {
-  return !!(value && value.constructor && value.call && value.apply)
+  return !!(value?.constructor && value.call && value.apply)
 }
 
 export const isString = (value: any): value is string => {
@@ -68,7 +69,7 @@ export const isEmpty = (value: any) => {
   if (value === true || value === false) return true
   if (value === null || value === undefined) return true
   if (isNumber(value)) return value === 0
-  if (isDate(value)) return isNaN(value.getTime())
+  if (isDate(value)) return Number.isNaN(value.getTime())
   if (isFunction(value)) return false
   if (isSymbol(value)) return false
   const length = (value as any).length

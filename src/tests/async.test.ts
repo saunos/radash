@@ -1,4 +1,5 @@
 import * as _ from '..'
+// biome-ignore lint/suspicious/noShadowRestrictedNames: <explanation>
 import { AggregateError } from '../async'
 
 describe('async module', () => {
@@ -150,6 +151,7 @@ describe('async module', () => {
           defer(async () => {
             three = 3
           })
+          // biome-ignore lint/complexity/noExtraBooleanCast: <explanation>
           if (!!true) throw new Error('soooo broken')
           return 'x'
         })
@@ -435,7 +437,7 @@ describe('async module', () => {
     })
     test('uses backoff between retries', async () => {
       let count = 0
-      let backoffs: number = 0
+      let backoffs = 0
       const start = Date.now()
       await _.retry(
         {

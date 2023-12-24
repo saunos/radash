@@ -6,3 +6,4 @@ archive.zip
 archive.tar.gz
 .chiller/
 .next/
+.vscode/settings.json

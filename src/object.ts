@@ -2,11 +2,11 @@ import { objectify } from './array'
 import { toInt } from './number'
 import { isArray, isObject, isPrimitive } from './typed'
 
-type LowercasedKeys<T extends Record<string, any>> = {
+type LowercasedKeys<T extends Record<string, unknown>> = {
   [P in keyof T & string as Lowercase<P>]: T[P]
 }
 
-type UppercasedKeys<T extends Record<string, any>> = {
+type UppercasedKeys<T extends Record<string, unknown>> = {
   [P in keyof T & string as Uppercase<P>]: T[P]
 }
 
@@ -17,17 +17,16 @@ type UppercasedKeys<T extends Record<string, any>> = {
  */
 export const shake = <RemovedKeys extends string, T>(
   obj: T,
-  filter: (value: any) => boolean = x => x === undefined
+  filter: (value: unknown) => boolean = x => x === undefined
 ): Omit<T, RemovedKeys> => {
   if (!obj) return {} as T
   const keys = Object.keys(obj) as (keyof T)[]
   return keys.reduce((acc, key) => {
     if (filter(obj[key])) {
       return acc
-    } else {
-      acc[key] = obj[key]
-      return acc
     }
+    acc[key] = obj[key]
+    return acc
   }, {} as T)
 }
 
@@ -44,10 +43,13 @@ export const mapKeys = <
   mapFunc: (key: TKey, value: TValue) => TNewKey
 ): Record<TNewKey, TValue> => {
   const keys = Object.keys(obj) as TKey[]
-  return keys.reduce((acc, key) => {
-    acc[mapFunc(key as TKey, obj[key])] = obj[key]
-    return acc
-  }, {} as Record<TNewKey, TValue>)
+  return keys.reduce(
+    (acc, key) => {
+      acc[mapFunc(key as TKey, obj[key])] = obj[key]
+      return acc
+    },
+    {} as Record<TNewKey, TValue>
+  )
 }
 
 /**
@@ -62,10 +64,13 @@ export const mapValues = <
   mapFunc: (value: TValue, key: TKey) => TNewValue
 ): Record<TKey, TNewValue> => {
   const keys = Object.keys(obj) as TKey[]
-  return keys.reduce((acc, key) => {
-    acc[key] = mapFunc(obj[key], key)
-    return acc
-  }, {} as Record<TKey, TNewValue>)
+  return keys.reduce(
+    (acc, key) => {
+      acc[key] = mapFunc(obj[key], key)
+      return acc
+    },
+    {} as Record<TKey, TNewValue>
+  )
 }
 
 /**
@@ -81,11 +86,14 @@ export const mapEntries = <
   toEntry: (key: TKey, value: TValue) => [TNewKey, TNewValue]
 ): Record<TNewKey, TNewValue> => {
   if (!obj) return {} as Record<TNewKey, TNewValue>
-  return Object.entries(obj).reduce((acc, [key, value]) => {
-    const [newKey, newValue] = toEntry(key as TKey, value as TValue)
-    acc[newKey] = newValue
-    return acc
-  }, {} as Record<TNewKey, TNewValue>)
+  return Object.entries(obj).reduce(
+    (acc, [key, value]) => {
+      const [newKey, newValue] = toEntry(key as TKey, value as TValue)
+      acc[newKey] = newValue
+      return acc
+    },
+    {} as Record<TNewKey, TNewValue>
+  )
 }
 
 /**
@@ -100,22 +108,25 @@ export const invert = <
 ): Record<TValue, TKey> => {
   if (!obj) return {} as Record<TValue, TKey>
   const keys = Object.keys(obj) as TKey[]
-  return keys.reduce((acc, key) => {
-    acc[obj[key]] = key
-    return acc
-  }, {} as Record<TValue, TKey>)
+  return keys.reduce(
+    (acc, key) => {
+      acc[obj[key]] = key
+      return acc
+    },
+    {} as Record<TValue, TKey>
+  )
 }
 
 /**
  * Convert all keys in an object to lower case
  */
-export const lowerize = <T extends Record<string, any>>(obj: T) =>
+export const lowerize = <T extends Record<string, unknown>>(obj: T) =>
   mapKeys(obj, k => k.toLowerCase()) as LowercasedKeys<T>
 
 /**
  * Convert all keys in an object to upper case
  */
-export const upperize = <T extends Record<string, any>>(obj: T) =>
+export const upperize = <T extends Record<string, unknown>>(obj: T) =>
   mapKeys(obj, k => k.toUpperCase()) as UppercasedKeys<T>
 
 /**
@@ -143,6 +154,7 @@ export const clone = <T>(obj: T): T => {
   Object.getOwnPropertyNames(obj).forEach(prop => {
     // Bypass type checking since the primitive cases
     // are already checked in the beginning
+
     ;(newObj as any)[prop] = (obj as any)[prop]
   })
 
@@ -160,10 +172,13 @@ export const listify = <TValue, TKey extends string | number | symbol, KResult>(
   if (!obj) return []
   const entries = Object.entries(obj)
   if (entries.length === 0) return []
-  return entries.reduce((acc, entry) => {
-    acc.push(toItem(entry[0] as TKey, entry[1] as TValue))
-    return acc
-  }, [] as KResult[])
+  return entries.reduce(
+    (acc, entry) => {
+      acc.push(toItem(entry[0] as TKey, entry[1] as TValue))
+      return acc
+    },
+    [] as KResult[]
+  )
 }
 
 /**
@@ -175,10 +190,13 @@ export const pick = <T extends object, TKeys extends keyof T>(
   keys: TKeys[]
 ): Pick<T, TKeys> => {
   if (!obj) return {} as Pick<T, TKeys>
-  return keys.reduce((acc, key) => {
-    if (Object.prototype.hasOwnProperty.call(obj, key)) acc[key] = obj[key]
-    return acc
-  }, {} as Pick<T, TKeys>)
+  return keys.reduce(
+    (acc, key) => {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) acc[key] = obj[key]
+      return acc
+    },
+    {} as Pick<T, TKeys>
+  )
 }
 
 /**
@@ -217,7 +235,7 @@ export const get = <TDefault = unknown>(
   defaultValue?: TDefault
 ): TDefault => {
   const segments = path.split(/[\.\[\]]/g)
-  let current: any = value
+  let current = value
   for (const key of segments) {
     if (current === null) return defaultValue as TDefault
     if (current === undefined) return defaultValue as TDefault
@@ -245,6 +263,7 @@ export const set = <T extends object, K>(
   if (!initial) return {} as T
   if (!path || value === undefined) return initial
   const segments = path.split(/[\.\[\]]/g).filter(x => !!x.trim())
+
   const _set = (node: any) => {
     if (segments.length > 1) {
       const key = segments.shift() as string
@@ -268,6 +287,7 @@ export const set = <T extends object, K>(
  * object applying values from right to left.
  * Recursion only applies to child object properties.
  */
+
 export const assign = <X extends Record<string | symbol | number, any>>(
   initial: X,
   override: X
@@ -299,6 +319,7 @@ export const assign = <X extends Record<string | symbol | number, any>>(
  */
 export const keys = <TValue extends object>(value: TValue): string[] => {
   if (!value) return []
+
   const getKeys = (nested: any, paths: string[]): string[] => {
     if (isObject(nested)) {
       return Object.entries(nested).flatMap(([k, v]) =>

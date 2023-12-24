@@ -9,12 +9,15 @@ export const group = <T, Key extends string | number | symbol>(
   array: readonly T[],
   getGroupId: (item: T) => Key
 ): Partial<Record<Key, T[]>> => {
-  return array.reduce((acc, item) => {
-    const groupId = getGroupId(item)
-    if (!acc[groupId]) acc[groupId] = []
-    acc[groupId].push(item)
-    return acc
-  }, {} as Record<Key, T[]>)
+  return array.reduce(
+    (acc, item) => {
+      const groupId = getGroupId(item)
+      if (!acc[groupId]) acc[groupId] = []
+      acc[groupId].push(item)
+      return acc
+    },
+    {} as Record<Key, T[]>
+  )
 }
 
 /**
@@ -68,13 +71,16 @@ export function zipToObject<K extends string | number | symbol, V>(
   const getValue = isFunction(values)
     ? values
     : isArray(values)
-    ? (_k: K, i: number) => values[i]
-    : (_k: K, _i: number) => values
+      ? (_k: K, i: number) => values[i]
+      : (_k: K, _i: number) => values
 
-  return keys.reduce((acc, key, idx) => {
-    acc[key] = getValue(key, idx)
-    return acc
-  }, {} as Record<K, V>)
+  return keys.reduce(
+    (acc, key, idx) => {
+      acc[key] = getValue(key, idx)
+      return acc
+    },
+    {} as Record<K, V>
+  )
 }
 
 /**
@@ -162,11 +168,14 @@ export const counting = <T, TId extends string | number | symbol>(
   identity: (item: T) => TId
 ): Record<TId, number> => {
   if (!list) return {} as Record<TId, number>
-  return list.reduce((acc, item) => {
-    const id = identity(item)
-    acc[id] = (acc[id] ?? 0) + 1
-    return acc
-  }, {} as Record<TId, number>)
+  return list.reduce(
+    (acc, item) => {
+      const id = identity(item)
+      acc[id] = (acc[id] ?? 0) + 1
+      return acc
+    },
+    {} as Record<TId, number>
+  )
 }
 
 /**
@@ -203,10 +212,13 @@ export const objectify = <T, Key extends string | number | symbol, Value = T>(
   getKey: (item: T) => Key,
   getValue: (item: T) => Value = item => item as unknown as Value
 ): Record<Key, Value> => {
-  return array.reduce((acc, item) => {
-    acc[getKey(item)] = getValue(item)
-    return acc
-  }, {} as Record<Key, Value>)
+  return array.reduce(
+    (acc, item) => {
+      acc[getKey(item)] = getValue(item)
+      return acc
+    },
+    {} as Record<Key, Value>
+  )
 }
 
 /**
@@ -222,11 +234,14 @@ export const select = <T, K>(
   condition: (item: T, index: number) => boolean
 ) => {
   if (!array) return []
-  return array.reduce((acc, item, index) => {
-    if (!condition(item, index)) return acc
-    acc.push(mapper(item, index))
-    return acc
-  }, [] as K[])
+  return array.reduce(
+    (acc, item, index) => {
+      if (!condition(item, index)) return acc
+      acc.push(mapper(item, index))
+      return acc
+    },
+    [] as K[]
+  )
 }
 
 /**
@@ -276,7 +291,7 @@ export function min<T>(
  * given a list of 10 items and a size of 2, it will return 5
  * lists with 2 items each
  */
-export const cluster = <T>(list: readonly T[], size: number = 2): T[][] => {
+export const cluster = <T>(list: readonly T[], size = 2): T[][] => {
   const clusterCount = Math.ceil(list.length / size)
   return new Array(clusterCount).fill(null).map((_c: null, i: number) => {
     return list.slice(i * size, i * size + size)
@@ -293,12 +308,17 @@ export const unique = <T, K extends string | number | symbol>(
   array: readonly T[],
   toKey?: (item: T) => K
 ): T[] => {
-  const valueMap = array.reduce((acc, item) => {
-    const key = toKey ? toKey(item) : (item as any as string | number | symbol)
-    if (acc[key]) return acc
-    acc[key] = item
-    return acc
-  }, {} as Record<string | number | symbol, T>)
+  const valueMap = array.reduce(
+    (acc, item) => {
+      const key = toKey
+        ? toKey(item)
+        : (item as any as string | number | symbol)
+      if (acc[key]) return acc
+      acc[key] = item
+      return acc
+    },
+    {} as Record<string | number | symbol, T>
+  )
   return Object.values(valueMap)
 }
 
@@ -320,7 +340,7 @@ export function* range<T = number>(
   startOrLength: number,
   end?: number,
   valueOrMapper: T | ((i: number) => T) = i => i as T,
-  step: number = 1
+  step = 1
 ): Generator<T> {
   const mapper = isFunction(valueOrMapper) ? valueOrMapper : () => valueOrMapper
   const start = end ? startOrLength : 0
@@ -376,10 +396,13 @@ export const intersects = <T, K extends string | number | symbol>(
 ): boolean => {
   if (!listA || !listB) return false
   const ident = identity ?? ((x: T) => x as unknown as K)
-  const dictB = listB.reduce((acc, item) => {
-    acc[ident(item)] = true
-    return acc
-  }, {} as Record<string | number | symbol, boolean>)
+  const dictB = listB.reduce(
+    (acc, item) => {
+      acc[ident(item)] = true
+      return acc
+    },
+    {} as Record<string | number | symbol, boolean>
+  )
   return listA.some(value => dictB[ident(value)])
 }
 
@@ -397,9 +420,8 @@ export const fork = <T>(
       const [a, b] = acc
       if (condition(item)) {
         return [[...a, item], b]
-      } else {
-        return [a, [...b, item]]
       }
+      return [a, [...b, item]]
     },
     [[], []] as [T[], T[]]
   )
@@ -419,12 +441,15 @@ export const merge = <T>(
   if (!others) return root
   if (!root) return []
   if (!matcher) return root
-  return root.reduce((acc, r) => {
-    const matched = others.find(o => matcher(r) === matcher(o))
-    if (matched) acc.push(matched)
-    else acc.push(r)
-    return acc
-  }, [] as T[])
+  return root.reduce(
+    (acc, r) => {
+      const matched = others.find(o => matcher(r) === matcher(o))
+      if (matched) acc.push(matched)
+      else acc.push(r)
+      return acc
+    },
+    [] as T[]
+  )
 }
 
 /**
@@ -527,10 +552,13 @@ export const diff = <T>(
   if (!root?.length && !other?.length) return []
   if (root?.length === undefined) return [...other]
   if (!other?.length) return [...root]
-  const bKeys = other.reduce((acc, item) => {
-    acc[identity(item)] = true
-    return acc
-  }, {} as Record<string | number | symbol, boolean>)
+  const bKeys = other.reduce(
+    (acc, item) => {
+      acc[identity(item)] = true
+      return acc
+    },
+    {} as Record<string | number | symbol, boolean>
+  )
   return root.filter(a => !bKeys[identity(a)])
 }
 

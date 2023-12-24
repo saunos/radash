@@ -1,5 +1,6 @@
 import * as _ from '..'
 
+// biome-ignore lint/complexity/noBannedTypes: <explanation>
 const NULL = null as unknown as {}
 
 describe('object module', () => {
@@ -160,7 +161,7 @@ describe('object module', () => {
     })
     test('copies all attributes from class instance', () => {
       class Data {
-        public x: number = 22
+        public x = 22
         public add(a: number, b: number) {
           return a + b
         }
@@ -500,7 +501,7 @@ describe('object module', () => {
         cards: [[{ value: 2 }]]
       })
       expect(_.set({}, 'cards.[1].[1].value', 2)).toEqual({
-        cards: [, [, { value: 2 }]]
+        cards: [undefined, [undefined, { value: 2 }]]
       })
     })
   })

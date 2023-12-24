@@ -123,7 +123,7 @@ describe('string module', () => {
     })
 
     test('replaces all occurrences given template', () => {
-      const tmp = `Hello <name>.`
+      const tmp = 'Hello <name>.'
       const data = {
         name: 'Ray'
       }

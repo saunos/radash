@@ -33,7 +33,7 @@ export const map = async <T, K>(
   asyncMapFunc: (item: T, index: number) => Promise<K>
 ): Promise<K[]> => {
   if (!array) return []
-  let result = []
+  const result = []
   let index = 0
   for (const value of array) {
     const newValue = await asyncMapFunc(value, index++)
@@ -91,6 +91,8 @@ type WorkItemResult<K> = {
  * so patching here.
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AggregateError#browser_compatibility
  */
+
+// biome-ignore lint/suspicious/noShadowRestrictedNames: <explanation>
 export class AggregateError extends Error {
   errors: Error[]
   constructor(errors: Error[] = []) {

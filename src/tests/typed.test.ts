@@ -92,14 +92,14 @@ describe('typed module', () => {
       for (const elm of arr) {
         expect(_.isPrimitive(elm)).toBe(true)
       }
-    }),
-      test('returns false for non-primitives', () => {
-        const arr = [new Date(), Number, {}, Object({}), () => 0, [1, 2]]
+    })
+    test('returns false for non-primitives', () => {
+      const arr = [new Date(), Number, {}, Object({}), () => 0, [1, 2]]
 
-        for (const elm of arr) {
-          expect(_.isPrimitive(elm)).toBe(false)
-        }
-      })
+      for (const elm of arr) {
+        expect(_.isPrimitive(elm)).toBe(false)
+      }
+    })
   })
 
   describe('isFunction function', () => {
@@ -137,6 +137,7 @@ describe('typed module', () => {
       expect(result).toBe(false)
     })
     test('returns true for anonymous function', () => {
+      // biome-ignore lint/complexity/useArrowFunction: <explanation>
       const result = _.isFunction(function () {
         return 'hello'
       })
@@ -294,7 +295,7 @@ describe('typed module', () => {
   describe('isEmpty function', () => {
     class Data {}
     class Person {
-      name: string = 'ray'
+      name = 'ray'
     }
     test('returns true for empty values', () => {
       expect(_.isEmpty(null)).toBe(true)
@@ -387,7 +388,7 @@ describe('typed module', () => {
     })
     test('returns false for class instance with properties', () => {
       class Data {
-        name: string = 'ray'
+        name = 'ray'
       }
       const input = new Data()
       const result = _.isSymbol(input)

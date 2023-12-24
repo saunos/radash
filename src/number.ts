@@ -7,7 +7,7 @@ export const toFloat = <T extends number | null = number>(
     return def
   }
   const result = parseFloat(value)
-  return isNaN(result) ? def : result
+  return Number.isNaN(result) ? def : result
 }
 
 export const toInt = <T extends number | null = number>(
@@ -19,5 +19,5 @@ export const toInt = <T extends number | null = number>(
     return def
   }
   const result = parseInt(value)
-  return isNaN(result) ? def : result
+  return Number.isNaN(result) ? def : result
 }

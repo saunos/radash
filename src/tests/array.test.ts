@@ -1,4 +1,3 @@
-
 import * as _ from '..'
 
 const NULL = null as unknown as unknown[]
@@ -255,16 +254,20 @@ describe('array module', () => {
 
   describe('select function', () => {
     test('does not fail on bad input', () => {
-      expect(_.select(
-        null as unknown as any[],
-        x => x,
-        x => x
-      )).toEqual([])
-      expect(_.select(
-        undefined as unknown as any[],
-        x => x,
-        x => x
-      )).toEqual([])
+      expect(
+        _.select(
+          null as unknown as any[],
+          x => x,
+          x => x
+        )
+      ).toEqual([])
+      expect(
+        _.select(
+          undefined as unknown as any[],
+          x => x,
+          x => x
+        )
+      ).toEqual([])
     })
     test('returns mapped and filtered values', () => {
       const list = [
@@ -389,7 +392,7 @@ describe('array module', () => {
   describe('range function', () => {
     const obj = { name: 'radash' }
     const toList = <T>(gen: Generator<T>): T[] => {
-      let items: T[] = []
+      const items: T[] = []
       for (const item of gen) items.push(item)
       return items
     }
