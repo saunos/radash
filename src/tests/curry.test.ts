@@ -1,4 +1,3 @@
-import { assert } from 'chai'
 import * as _ from '..'
 import type { DebounceFunction } from '../curry'
 
@@ -28,7 +27,7 @@ describe('curry module', () => {
       const expected = decomposed()
       const result = composed()
 
-      assert.equal(result, expected)
+      expect(result).toBe(expected)
     })
     test('composes async function', async () => {
       const useZero = (fn: any) => async () => await fn(0)
@@ -54,7 +53,7 @@ describe('curry module', () => {
       const expected = await decomposed()
       const result = await composed()
 
-      assert.equal(result, expected)
+      expect(result).toBe(expected)
     })
   })
 
@@ -63,13 +62,13 @@ describe('curry module', () => {
       const add = (a: number, b: number) => a + b
       const expected = 20
       const result = _.partial(add, 10)(10)
-      assert.equal(result, expected)
+      expect(result).toBe(expected)
     })
     test('passes many args', () => {
       const add = (...nums: number[]) => nums.reduce((a, b) => a + b, 0)
       const expected = 10
       const result = _.partial(add, 2, 2, 2)(2, 2)
-      assert.equal(result, expected)
+      expect(result).toBe(expected)
     })
   })
 
@@ -78,13 +77,13 @@ describe('curry module', () => {
       const add = ({ a, b }: { a: number; b: number }) => a + b
       const expected = 20
       const result = _.partob(add, { a: 10 })({ b: 10 })
-      assert.equal(result, expected)
+      expect(result).toBe(expected)
     })
     test('partob overrides inital with later', () => {
       const add = ({ a, b }: { a: number; b: number }) => a + b
       const expected = 15
       const result = _.partob(add, { a: 10 })({ a: 5, b: 10 } as any)
-      assert.equal(result, expected)
+      expect(result).toBe(expected)
     })
   })
 
@@ -95,7 +94,7 @@ describe('curry module', () => {
       const twoX = (num: number) => num * 2
       const func = _.chain(genesis, addFive, twoX)
       const result = func()
-      assert.equal(result, 10)
+      expect(result).toBe(10)
     })
   })
 
@@ -107,9 +106,9 @@ describe('curry module', () => {
         return undefined
       }
       const proxy = _.proxied(handler) as any
-      assert.equal(proxy.x, 2)
-      assert.equal(proxy.getName(), 'radash')
-      assert.isUndefined(proxy.nil)
+      expect(proxy.x).toBe(2)
+      expect(proxy.getName()).toBe('radash')
+      expect(proxy.nil).toBeUndefined()
     })
   })
 
@@ -118,7 +117,7 @@ describe('curry module', () => {
       const func = _.memo(() => new Date().getTime())
       const resultA = func()
       const resultB = func()
-      assert.equal(resultA, resultB)
+      expect(resultA).toBe(resultB)
     })
     test('uses key to identify unique calls', () => {
       const func = _.memo(
@@ -133,8 +132,8 @@ describe('curry module', () => {
       const resultA = func({ id: 'alpha' })
       const resultB = func({ id: 'beta' })
       const resultA2 = func({ id: 'alpha' })
-      assert.equal(resultA, resultA2)
-      assert.notEqual(resultB, resultA)
+      expect(resultA).toBe(resultA2)
+      expect(resultB).not.toBe(resultA)
     })
     test('calls function again when first value expires', async () => {
       const func = _.memo(() => new Date().getTime(), {
@@ -143,7 +142,7 @@ describe('curry module', () => {
       const resultA = func()
       await new Promise(res => setTimeout(res, 100))
       const resultB = func()
-      assert.notEqual(resultA, resultB)
+      expect(resultA).not.toBe(resultB)
     })
     test('does not call function again when first value has not expired', async () => {
       const func = _.memo(() => new Date().getTime(), {
@@ -152,7 +151,7 @@ describe('curry module', () => {
       const resultA = func()
       await new Promise(res => setTimeout(res, 100))
       const resultB = func()
-      assert.equal(resultA, resultB)
+      expect(resultA).toBe(resultB)
     })
   })
 
@@ -219,7 +218,7 @@ describe('curry module', () => {
       results.push(func.isPending())
       await _.sleep(610)
       results.push(func.isPending())
-      assert.deepEqual(results, [true, true, false, true, false])
+      expect(results).toEqual([true, true, false, true, false])
     })
 
     test('returns if there is any pending invocation when the pending method is called', async () => {
@@ -237,12 +236,12 @@ describe('curry module', () => {
       func()
       func()
       func()
-      assert.equal(calls, 1)
+      expect(calls).toBe(1)
       await _.sleep(610)
       func()
       func()
       func()
-      assert.equal(calls, 2)
+      expect(calls).toBe(2)
     })
 
     test('returns if the throttle is active', async () => {
@@ -257,7 +256,7 @@ describe('curry module', () => {
       results.push(func.isThrottled())
       await _.sleep(610)
       results.push(func.isThrottled())
-      assert.deepEqual(results, [false, true, true, true, false])
+      expect(results).toEqual([false, true, true, true, false])
     })
   })
 })
